@@ -64,7 +64,7 @@ public class GraphPlus<N, V> {
     **/
     public N getMinNode(Set<N> candidateSet){
         return candidateSet.stream()
-                .min((n1, n2) -> defaultComparator.compare(nodeMap.get(n1).getCost(), nodeMap.get(n2).getCost())).get();
+                .min((n1, n2) -> defaultComparator.compare(nodeMap.get(n1).getCost(), nodeMap.get(n2).getCost())).orElse(null);
     }
 
     public List<GraphNode<N, V>> get(N endNode){
@@ -96,7 +96,7 @@ public class GraphPlus<N, V> {
         if (minNode.equals(endNode)){
             return get(endNode);
         }
-        candidateSet.remove(minNode);
+        // candidateSet.remove(minNode);
         while (!candidateSet.isEmpty()){
             // 成本最小的点的相邻点集合
             Set<N> nodeSet = graph.successors(minNode);
@@ -116,15 +116,19 @@ public class GraphPlus<N, V> {
                 // 将n加入候选节点池
                 candidateSet.add(n);
             }
+            candidateSet.remove(minNode);
             // 重新取候选节点池中成本最小的点
             minNode = getMinNode(candidateSet);
+            if (minNode == null) {
+                continue;
+            }
             // minNode成本已确定，候选节点池移除minNode
             minGraphNode = nodeMap.get(minNode);
             minGraphNode.setVisited(true);
             if (minNode.equals(endNode)){
                 return get(endNode);
             }
-            candidateSet.remove(minNode);
+            // candidateSet.remove(minNode);
         }
         return new ArrayList<>(nodeMap.values());
     }
